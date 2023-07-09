@@ -937,19 +937,15 @@ class ElectricVehicle(Battery):
                 capacity_limit = self.soc_minimum_limit*self.capacity_history[0]
                 energy_to_limit = (capacity_limit - self.soc_init)*self.round_trip_efficiency
                 energy = max(energy_to_limit, energy)
+                
+                # update discharge count since arrival
+                self.__discharge_count += 1
             
             else:
                 # do not discharge if discharge count limit reached
                 energy = 0.0
         
         super().charge(energy)
-
-        # update discharge count since arrival
-        if self.energy_balance[-1] < 0.0:
-            self.__discharge_count += 1
-        
-        else:
-            pass
 
     def autosize(self, demand: Iterable[float], safety_factor: float = None):
         raise NotImplementedError('Cannot autosize an electric vehicle!')
