@@ -252,3 +252,8 @@ class CarbonIntensity:
 
     def __init__(self, carbon_intensity: Iterable[float]):
         self.carbon_intensity = np.array(carbon_intensity, dtype = float)
+
+class ElectricVehicleSchedule:
+    def __init__(self, availability: Iterable[int], arrival_soc: Iterable[float]):
+        self.availability = availability
+        self.arrival_soc = arrival_soc

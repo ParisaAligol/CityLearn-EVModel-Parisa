@@ -7,7 +7,7 @@ import torch
 from citylearn.base import Environment
 from citylearn.data import EnergySimulation, CarbonIntensity, Pricing, Weather
 from citylearn.dynamics import Dynamics, LSTMDynamics
-from citylearn.energy_model import Battery, ElectricHeater, HeatPump, PV, StorageTank
+from citylearn.energy_model import Battery, ElectricHeater, ElectricVehicle, HeatPump, PV, StorageTank
 from citylearn.preprocessing import Normalize, PeriodicNormalization
 
 class Building(Environment):
@@ -56,7 +56,7 @@ class Building(Environment):
     
     def __init__(
         self, energy_simulation: EnergySimulation, weather: Weather, observation_metadata: Mapping[str, bool], action_metadata: Mapping[str, bool], carbon_intensity: CarbonIntensity = None, 
-        pricing: Pricing = None, dhw_storage: StorageTank = None, cooling_storage: StorageTank = None, heating_storage: StorageTank = None, electrical_storage: Battery = None, 
+        pricing: Pricing = None, dhw_storage: StorageTank = None, cooling_storage: StorageTank = None, heating_storage: StorageTank = None, electrical_storage: Battery = None, electric_vehicles: List[ElectricVehicle] = None,
         dhw_device: Union[HeatPump, ElectricHeater] = None, cooling_device: HeatPump = None, heating_device: Union[HeatPump, ElectricHeater] = None, pv: PV = None, name: str = None,
         maximum_temperature_delta: float = None, **kwargs: Any
     ):
@@ -69,12 +69,13 @@ class Building(Environment):
         self.cooling_storage = cooling_storage
         self.heating_storage = heating_storage
         self.electrical_storage = electrical_storage
+        self.observation_metadata = observation_metadata
+        self.action_metadata = action_metadata
+        self.electric_vehicles = electric_vehicles
         self.dhw_device = dhw_device
         self.cooling_device = cooling_device
         self.heating_device = heating_device
         self.pv = pv
-        self.observation_metadata = observation_metadata
-        self.action_metadata = action_metadata
         self.__observation_epsilon = 0.0 # to avoid out of bound observations
         self.maximum_temperature_delta = 5.0 if maximum_temperature_delta is None else maximum_temperature_delta # C
         self.__thermal_load_factor = 1.15
@@ -150,6 +151,10 @@ class Building(Environment):
         """Electric storage object for meeting electric loads."""
 
         return self.__electrical_storage
+    
+    @property
+    def electric_vehicles(self) -> List[ElectricVehicle]:
+        return self.__electric_vehicles
 
     @property
     def dhw_device(self) -> Union[HeatPump, ElectricHeater]:
@@ -323,14 +328,16 @@ class Building(Environment):
         Notes
         -----
         net_electricity_consumption_without_storage = `net_electricity_consumption` - (`cooling_storage_electricity_consumption`
-        + `heating_storage_electricity_consumption` + `dhw_storage_electricity_consumption` + `electrical_storage_electricity_consumption`)
+        + `heating_storage_electricity_consumption` + `dhw_storage_electricity_consumption` + `electrical_storage_electricity_consumption`
+        + `electric_vehicles_electricity_consumption`)
         """
 
         return self.net_electricity_consumption - np.sum([
             self.cooling_storage_electricity_consumption,
             self.heating_storage_electricity_consumption,
             self.dhw_storage_electricity_consumption,
-            self.electrical_storage_electricity_consumption
+            self.electrical_storage_electricity_consumption,
+            self.electric_vehicles_electricity_consumption,
         ], axis = 0)
 
     @property
@@ -423,6 +430,15 @@ class Building(Environment):
         """Energy supply from grid and/or `PV` to `electrical_storage` time series, in [kWh]."""
 
         return np.array(self.electrical_storage.electricity_consumption, dtype=float)
+    
+    @property
+    def electric_vehicles_electricity_consumption(self) -> np.ndarray:
+        data = []
+
+        for ev in self.electric_vehicles:
+            data.append(ev.electricity_consumption*ev.schedule.availability[0:self.time_step + 1])
+
+        return np.sum(data, axis=0)
 
     @property
     def energy_from_cooling_device_to_cooling_storage(self) -> np.ndarray:
@@ -447,6 +463,15 @@ class Building(Environment):
         """Energy supply from `electrical_device` to building time series, in [kWh]."""
 
         return np.array(self.electrical_storage.energy_balance, dtype=float).clip(min=0)
+    
+    @property
+    def energy_to_electric_vehicles(self) -> np.ndarray:
+        data = []
+
+        for ev in self.electric_vehicles:
+            data.append((ev.energy_balance*ev.schedule.availability[0:self.time_step + 1]).clip(min=0))
+
+        return np.sum(data, axis=0)
 
     @property
     def energy_from_cooling_device(self) -> np.ndarray:
@@ -489,6 +514,15 @@ class Building(Environment):
         """Energy supply from `electrical_storage` to building time series, in [kWh]."""
 
         return np.array(self.electrical_storage.energy_balance, dtype=float).clip(max=0)*-1
+    
+    @property
+    def energy_from_electric_vehicles(self) -> np.ndarray:
+        data = []
+
+        for ev in self.electric_vehicles:
+            data.append((ev.energy_balance*ev.schedule.availability[0:self.time_step + 1]).clip(max=0)*-1)
+
+        return np.sum(data, axis=0)
     
     @property
     def indoor_dry_bulb_temperature(self) -> np.ndarray:
@@ -590,6 +624,20 @@ class Building(Environment):
     def electrical_storage(self, electrical_storage: Battery):
         self.__electrical_storage = Battery(0.0, 0.0) if electrical_storage is None else electrical_storage
 
+    @electric_vehicles.setter
+    def electric_vehicles(self, electric_vehicles: List[ElectricVehicle]):
+        self.__electric_vehicles = [] if electric_vehicles is None else electric_vehicles
+
+        # update observation and action space to include EV related variables
+        self.observation_metadata = {
+            **self.observation_metadata,
+            **{f'electric_vehicle_{i}_soc': True for i in range(len(self.electric_vehicles))}
+        }
+        self.action_metadata = {
+            **self.action_metadata,
+            **{f'electric_vehicle_{i}': True for i in range(len(self.electric_vehicles))}
+        }
+
     @dhw_device.setter
     def dhw_device(self, dhw_device: Union[HeatPump, ElectricHeater]):
         self.__dhw_device = ElectricHeater(0.0) if dhw_device is None else dhw_device
@@ -662,6 +710,7 @@ class Building(Environment):
                 'heating_storage_soc':self.heating_storage.soc[self.time_step]/self.heating_storage.capacity,
                 'dhw_storage_soc':self.dhw_storage.soc[self.time_step]/self.dhw_storage.capacity,
                 'electrical_storage_soc':self.electrical_storage.soc[self.time_step]/self.electrical_storage.capacity_history[0],
+                **{f'electric_vehicle_{i}_soc':ev.soc[self.time_step]/ev.capacity_history[0] for i, ev in enumerate(self.electric_vehicles)}
             },
             'net_electricity_consumption': self.__net_electricity_consumption[self.time_step],
             **{k: v[self.time_step] for k, v in vars(self.carbon_intensity).items()},
@@ -735,7 +784,8 @@ class Building(Environment):
     def apply_actions(self,
         cooling_device_action: float = None, heating_device_action: float = None,
         cooling_storage_action: float = None, heating_storage_action: float = None, 
-        dhw_storage_action: float = None, electrical_storage_action: float = None
+        dhw_storage_action: float = None, electrical_storage_action: float = None,
+        electric_vehicle_actions: List[float] = None,
     ):
         r"""Update cooling and heating demand for next timestep and charge/discharge storage devices.
 
@@ -751,18 +801,18 @@ class Building(Environment):
             Fraction of `heating_storage` `capacity` to charge/discharge by.
         dhw_storage_action : float, default: 0.0
             Fraction of `dhw_storage` `capacity` to charge/discharge by.
-        electrical_storage_action : float, default: 0.0
-            Fraction of `electrical_storage` `capacity` to charge/discharge by.
         """
 
         cooling_storage_action = 0.0 if cooling_storage_action is None or math.isnan(cooling_storage_action) else cooling_storage_action
         heating_storage_action = 0.0 if heating_storage_action is None or math.isnan(heating_storage_action) else heating_storage_action
         dhw_storage_action = 0.0 if dhw_storage_action is None or math.isnan(dhw_storage_action) else dhw_storage_action
         electrical_storage_action = 0.0 if electrical_storage_action is None or math.isnan(electrical_storage_action) else electrical_storage_action
+        electric_vehicle_actions = [] if electric_vehicle_actions is None else electric_vehicle_actions
         self.update_cooling(cooling_device_action, cooling_storage_action)
         self.update_heating(heating_device_action, heating_storage_action)
         self.update_dhw(dhw_storage_action)
         self.update_electrical_storage(electrical_storage_action)
+        self.update_electric_vehicles(electric_vehicle_actions)
 
     def update_dynamics(self):
         r"""Update building dynamics e.g. space indoor temperature, relative humidity, etc."""
@@ -865,6 +915,16 @@ class Building(Environment):
         energy = action*self.electrical_storage.capacity
         self.electrical_storage.charge(energy)
 
+    def update_electric_vehicles(self, actions: List[float]):
+        for ev, action in zip(self.electric_vehicles, actions):
+            if ev.schedule.availability[self.time_step] == 0:
+                action = 0.0
+            else:
+                pass
+            
+            energy = action*self.electrical_storage.capacity
+            ev.charge(energy)
+
     def estimate_observation_space(self, include_all: bool = None, normalize: bool = None, periodic_normalization: bool = None) -> spaces.Box:
         r"""Get estimate of observation spaces.
 
@@ -953,7 +1013,7 @@ class Building(Environment):
                 low_limit[key] = -max(abs(net_electric_consumption))
                 high_limit[key] = max(abs(net_electric_consumption))
 
-            elif key in ['cooling_storage_soc', 'heating_storage_soc', 'dhw_storage_soc', 'electrical_storage_soc']:
+            elif key in ['cooling_storage_soc', 'heating_storage_soc', 'dhw_storage_soc', 'electrical_storage_soc'] or 'electric_vehicle' in key:
                 low_limit[key] = 0.0
                 high_limit[key] = 1.0
 
@@ -1030,6 +1090,12 @@ class Building(Environment):
             
             elif key == 'electrical_storage':
                 limit = self.electrical_storage.nominal_power/self.electrical_storage.capacity
+                low_limit.append(-limit)
+                high_limit.append(limit)
+
+            elif 'electric_vehicle' in key:
+                ix = int(key.split('_')[-1])
+                limit = self.electric_vehicles[ix].nominal_power/self.electric_vehicles[ix].capacity
                 low_limit.append(-limit)
                 high_limit.append(limit)
             
@@ -1168,6 +1234,10 @@ class Building(Environment):
         self.heating_storage.next_time_step()
         self.dhw_storage.next_time_step()
         self.electrical_storage.next_time_step()
+        
+        for ev in self.electric_vehicles:
+            ev.next_time_step()
+
         self.pv.next_time_step()
         super().next_time_step()
         self.update_variables()
@@ -1181,6 +1251,10 @@ class Building(Environment):
         self.heating_storage.reset()
         self.dhw_storage.reset()
         self.electrical_storage.reset()
+
+        for ev in self.electric_vehicles:
+            ev.reset()
+
         self.cooling_device.reset()
         self.heating_device.reset()
         self.dhw_device.reset()
@@ -1229,13 +1303,20 @@ class Building(Environment):
 
         self.__dhw_electricity_consumption.append(dhw_consumption)
 
+        # electric vehicle consumption
+        ev_electricity_consumption = sum([
+            ev.schedule.availability[self.time_step]*ev.electricity_consumption[self.time_step]
+            for ev in self.electric_vehicles
+        ])
+
         # net electricity consumption
         net_electricity_consumption = cooling_consumption \
             + heating_consumption \
                 + dhw_consumption \
                     + self.electrical_storage.electricity_consumption[self.time_step] \
-                        + self.energy_simulation.non_shiftable_load[self.time_step] \
-                            + self.__solar_generation[self.time_step]
+                        + ev_electricity_consumption \
+                            + self.energy_simulation.non_shiftable_load[self.time_step] \
+                                + self.__solar_generation[self.time_step]
         self.__net_electricity_consumption.append(net_electricity_consumption)
 
         # net electriciy consumption cost

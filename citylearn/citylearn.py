@@ -1,3 +1,4 @@
+from copy import deepcopy
 from enum import Enum, unique
 import importlib
 import logging
@@ -11,7 +12,7 @@ from citylearn import __version__ as citylearn_version
 from citylearn.base import Environment
 from citylearn.building import Building
 from citylearn.cost_function import CostFunction
-from citylearn.data import DataSet, EnergySimulation, CarbonIntensity, Pricing, Weather
+from citylearn.data import DataSet, ElectricVehicleSchedule, EnergySimulation, CarbonIntensity, Pricing, Weather
 from citylearn.utilities import read_json
 
 LOGGER = logging.getLogger()
@@ -636,6 +637,13 @@ class CityLearnEnv(Environment, Env):
         actions = [{k:a for k, a in zip(active_actions[i],building_actions[i])} for i in range(len(active_actions))]
         actions = [{f'{k}_action':actions[i].get(k, np.nan) for k in b.action_metadata} for i, b in enumerate(self.buildings)]
 
+        # group electric vehicle actions
+        ev_actions = [[v for k, v in a.items() if 'electric_vehicle' in k] for a in actions]
+        actions = [{
+            **{k: v for k, v in a.items() if 'electric_vehicle' not in k}, 
+            'electric_vehicle_actions': e
+        } for a, e in zip(actions, ev_actions)]
+
         return actions
     
     def get_building_information(self) -> Tuple[Mapping[str, Any]]:
@@ -1035,7 +1043,24 @@ class CityLearnEnv(Environment, Env):
                         autosizer(**autosize_kwargs)
                     else:
                         pass
-            
+
+            # update electric vehicles
+            electric_vehicles = ()
+
+            for ev in building_schema.get('electric_vehicles', []):
+                device_type = ev['type']
+                device_module = '.'.join(device_type.split('.')[0:-1])
+                device_name = device_type.split('.')[-1]
+                constructor = getattr(importlib.import_module(device_module),device_name)
+                attributes = ev.get('attributes',{})
+                attributes['seconds_per_time_step'] = seconds_per_time_step
+                schedule = pd.read_csv(os.path.join(root_directory,ev['schedule'])).iloc[simulation_start_time_step:simulation_end_time_step + 1].copy()
+                attributes['schedule'] = ElectricVehicleSchedule(*schedule.values.T)
+                electric_vehicles += (constructor(**attributes), )
+                
+            building.electric_vehicles = list(electric_vehicles)
+
+            # update spaces
             building.observation_space = building.estimate_observation_space()
             building.action_space = building.estimate_action_space()
             buildings += (building,)

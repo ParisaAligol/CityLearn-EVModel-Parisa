@@ -1,6 +1,7 @@
 from typing import Any, Iterable, List, Union
 import numpy as np
 from citylearn.base import Environment
+from citylearn.data import ElectricVehicleSchedule
 np.seterr(divide='ignore', invalid='ignore')
 ZERO_DIVISION_CAPACITY = 0.00001
 
@@ -530,6 +531,11 @@ class StorageDevice(Device):
             assert 0 <= initial_soc <= self.capacity, 'initial_soc must be >= 0 and <= capacity.'
             self.__initial_soc = initial_soc
 
+    @soc.setter
+    def soc(self, soc: List[float]):
+        assert len(soc) == self.time_step + 1
+        self.__soc = soc
+
     def charge(self, energy: float):
         """Charges or discharges storage with respect to specified energy while considering `capacity` and `soc_init` limitations and, energy losses to the environment quantified by `round_trip_efficiency`.
 
@@ -873,3 +879,103 @@ class Battery(ElectricDevice, StorageDevice):
         super().reset()
         self._efficiency_history = self._efficiency_history[0:1]
         self._capacity_history = self._capacity_history[0:1]
+
+class ElectricVehicle(Battery):
+    def __init__(
+            self, capacity: float, nominal_power: float, schedule: ElectricVehicleSchedule,
+            capacity_loss_coefficient: float = None, power_efficiency_curve: List[List[float]] = None, 
+            capacity_power_curve: List[List[float]] = None, soc_minimum_limit: float = None, 
+            soc_maximum_limit: float = None, discharge_count_limit: int = None, **kwargs: Any
+        ):
+        self.schedule = schedule
+        self.discharge_count_limit = discharge_count_limit
+        super().__init__(capacity, nominal_power, capacity_loss_coefficient, power_efficiency_curve, capacity_power_curve, **kwargs)
+        self.soc_minimum_limit = soc_minimum_limit
+        self.soc_maximum_limit = soc_maximum_limit
+
+    @property
+    def schedule(self) -> ElectricVehicleSchedule:
+        return self.__schedule
+    
+    @property
+    def soc_minimum_limit(self) -> float:
+        return self.__soc_minimum_limit
+    
+    @property
+    def soc_maximum_limit(self) -> float:
+        return self.__soc_maximum_limit
+    
+    @property
+    def discharge_count_limit(self) -> int:
+        return self.__discharge_count_limit
+    
+    @schedule.setter
+    def schedule(self, schedule: ElectricVehicleSchedule):
+        self.__schedule = schedule
+
+    @soc_minimum_limit.setter
+    def soc_minimum_limit(self, soc_minimum_limit: float):
+        self.__soc_minimum_limit = 0.1 if soc_minimum_limit is None else soc_minimum_limit
+
+    @soc_maximum_limit.setter
+    def soc_maximum_limit(self, soc_maximum_limit: float):
+        self.__soc_maximum_limit = 0.8 if soc_maximum_limit is None else soc_maximum_limit
+
+    @discharge_count_limit.setter
+    def discharge_count_limit(self, discharge_count_limit: float):
+        self.__discharge_count_limit = 2 if discharge_count_limit is None else discharge_count_limit
+
+    def charge(self, energy: float):
+        # update energy so that it does not cause SOC to exceed limits
+        if energy >= 0.0:
+            capacity_limit = self.soc_maximum_limit*self.capacity_history[0]
+            energy_to_limit = (capacity_limit - self.soc_init)/self.round_trip_efficiency
+            energy = min(energy_to_limit, energy)
+        
+        else:
+            if self.__discharge_count < self.discharge_count_limit:
+                capacity_limit = self.soc_minimum_limit*self.capacity_history[0]
+                energy_to_limit = (capacity_limit - self.soc_init)*self.round_trip_efficiency
+                energy = max(energy_to_limit, energy)
+            
+            else:
+                # do not discharge if discharge count limit reached
+                energy = 0.0
+        
+        super().charge(energy)
+
+        # update discharge count since arrival
+        if self.energy_balance[-1] < 0.0:
+            self.__discharge_count += 1
+        
+        else:
+            pass
+
+    def autosize(self, demand: Iterable[float], safety_factor: float = None):
+        raise NotImplementedError('Cannot autosize an electric vehicle!')
+
+    def next_time_step(self):
+        super().next_time_step()
+        self.__update_arrival_soc()
+
+    def reset(self):
+        super().reset()
+        self.__discharge_count = 0
+        self.__update_arrival_soc()
+
+    def __update_arrival_soc(self):
+        # EV jjust arrived
+        if self.schedule.availability[self.time_step] == 1 \
+            and self.schedule.availability[max(self.time_step - 1, 0)] == 0:
+            # Directly set the SOC of current time step to the arrival SOC.
+            # Note that this approach does not take into account capacity
+            # degradation while EV was away!
+            soc = self.soc
+            soc[self.time_step] = self.schedule.arrival_soc[self.time_step]*self.capacity_history[0]
+            self.soc = soc
+
+            # reset discharge count
+            self.__discharge_count = 0
+        
+        else:
+            pass
