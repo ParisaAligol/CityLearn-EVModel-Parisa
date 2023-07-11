@@ -947,6 +947,12 @@ class ElectricVehicle(Battery):
         
         super().charge(energy)
 
+    def degrade(self) -> float:
+        # We do not know how the EV travels while away from the building
+        # so we choose not to make assumptions about degradation the
+        # few time steps the EV is at the building.
+        return 0.0
+
     def autosize(self, demand: Iterable[float], safety_factor: float = None):
         raise NotImplementedError('Cannot autosize an electric vehicle!')
 
