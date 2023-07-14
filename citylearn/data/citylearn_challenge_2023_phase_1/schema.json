@@ -211,6 +211,20 @@
         "attributes": {
           "nominal_power": 110
         }
+      },
+      "ev": {
+        "type": "citylearn.energy_model.ElectricVehicle",
+        "autosize": false,
+        "attributes": {
+          "capacity": np.random.choice(CAPACITITES),
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": 0.0,
+          "nominal_power": np.random.choice(NOMINAL_POWERS),
+          "soc_minimum_limit": 0.1,
+          "soc_maximum_limit": 0.8,
+          "discharge_count_limit": 2
+        }
       }
     },
     "Building_2": {
@@ -237,6 +251,20 @@
         "autosize": false,
         "attributes": {
           "nominal_power": 0.0
+        }
+       },
+      "ev": {
+        "type": "citylearn.energy_model.ElectricVehicle",
+        "autosize": false,
+        "attributes": {
+          "capacity": np.random.choice(CAPACITITES),
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": 0.0,
+          "nominal_power": np.random.choice(NOMINAL_POWERS),
+          "soc_minimum_limit": 0.1,
+          "soc_maximum_limit": 0.8,
+          "discharge_count_limit": 2
         }
       }
     },
@@ -265,6 +293,20 @@
         "attributes": {
           "nominal_power": 0.0
         }
+       },
+      "ev": {
+        "type": "citylearn.energy_model.ElectricVehicle",
+        "autosize": false,
+        "attributes": {
+          "capacity": np.random.choice(CAPACITITES),
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": 0.0,
+          "nominal_power": np.random.choice(NOMINAL_POWERS),
+          "soc_minimum_limit": 0.1,
+          "soc_maximum_limit": 0.8,
+          "discharge_count_limit": 2
+        }
       }
     },
     "Building_4": {
@@ -291,6 +333,20 @@
         "autosize": false,
         "attributes": {
           "nominal_power": 0.0
+        }
+       },
+      "ev": {
+        "type": "citylearn.energy_model.ElectricVehicle",
+        "autosize": false,
+        "attributes": {
+          "capacity": np.random.choice(CAPACITITES),
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": 0.0,
+          "nominal_power": np.random.choice(NOMINAL_POWERS),
+          "soc_minimum_limit": 0.1,
+          "soc_maximum_limit": 0.8,
+          "discharge_count_limit": 2
         }
       }
     },
@@ -319,6 +375,20 @@
         "attributes": {
           "nominal_power": 0.0
         }
+       },
+      "ev": {
+        "type": "citylearn.energy_model.ElectricVehicle",
+        "autosize": false,
+        "attributes": {
+          "capacity": np.random.choice(CAPACITITES),
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": 0.0,
+          "nominal_power": np.random.choice(NOMINAL_POWERS),
+          "soc_minimum_limit": 0.1,
+          "soc_maximum_limit": 0.8,
+          "discharge_count_limit": 2
+        }
       }
     },
     "Building_6": {
@@ -346,6 +416,20 @@
         "attributes": {
           "nominal_power": 0.0
         }
+       },
+      "ev": {
+        "type": "citylearn.energy_model.ElectricVehicle",
+        "autosize": false,
+        "attributes": {
+          "capacity": np.random.choice(CAPACITITES),
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": 0.0,
+          "nominal_power": np.random.choice(NOMINAL_POWERS),
+          "soc_minimum_limit": 0.1,
+          "soc_maximum_limit": 0.8,
+          "discharge_count_limit": 2
+        }
       }
     },
     "Building_7": {
@@ -372,6 +456,20 @@
         "autosize": false,
         "attributes": {
           "nominal_power": 0.0
+        }
+       },
+      "ev": {
+        "type": "citylearn.energy_model.ElectricVehicle",
+        "autosize": false,
+        "attributes": {
+          "capacity": np.random.choice(CAPACITITES),
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": 0.0,
+          "nominal_power": np.random.choice(NOMINAL_POWERS),
+          "soc_minimum_limit": 0.1,
+          "soc_maximum_limit": 0.8,
+          "discharge_count_limit": 2
         }
       }
     }
