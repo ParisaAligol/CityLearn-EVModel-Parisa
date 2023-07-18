@@ -181,4 +181,3 @@ examples/*
 reward_exploration_simulation_output/
 reward_exploration.sh
 test_notebooks/
-ev_test_data/*
