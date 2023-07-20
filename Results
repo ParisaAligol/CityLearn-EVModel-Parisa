@@ -1,0 +1,51 @@
+For:
+{
+  # train
+episodes = 50
+env = CityLearnEnv(SCHEMA_FILEPATH, central_agent=True)
+env.reward_function = CustomReward(env) # set custom reward
+env = NormalizedObservationWrapper(env)
+env = StableBaselines3Wrapper(env)
+model = SAC('MlpPolicy', env, learning_starts=env.unwrapped.time_steps)
+model.learn(total_timesteps=episodes*model.learning_starts)
+
+# evaluate
+observations = env.reset()
+done = False
+
+while not env.done:
+    print(f'\rTime step: {env.time_step + 1}/{env.time_steps}', end=' '*50)
+    actions, _ = model.predict(observations, deterministic=True)
+    observations, reward, done, _ = env.step(actions)
+
+display(env.evaluate())
+}
+index,cost_function,value,name,level
+0,1 - load_factor,1.0229702516750545,District,district
+1,average_daily_peak,1.6529219251756684,District,district
+2,carbon_emissions,1.5827084711391233,District,district
+3,cost,1.5395982087429334,District,district
+4,electricity_consumption,1.5956950085422619,District,district
+5,peak_demand,1.6154683904004272,District,district
+6,ramping,3.0056642178475768,District,district
+7,zero_net_energy,1.2509284587400056,District,district
+8,electricity_consumption,1.420124498390864,Building_1,building
+9,zero_net_energy,1.207858789693181,Building_1,building
+10,carbon_emissions,1.4118425792151117,Building_1,building
+11,cost,1.3513558574832325,Building_1,building
+12,electricity_consumption,1.5140549786209014,Building_2,building
+13,zero_net_energy,1.1820559284738126,Building_2,building
+14,carbon_emissions,1.494746934713165,Building_2,building
+15,cost,1.4939711552522728,Building_2,building
+16,electricity_consumption,1.677944790479665,Building_3,building
+17,zero_net_energy,1.4606931806570473,Building_3,building
+18,carbon_emissions,1.669398997893188,Building_3,building
+19,cost,1.6372415275090773,Building_3,building
+20,electricity_consumption,1.5882764699723393,Building_4,building
+21,zero_net_energy,1.150683958557308,Building_4,building
+22,carbon_emissions,1.5990415380748024,Building_4,building
+23,cost,1.5882478363417933,Building_4,building
+24,electricity_consumption,1.7780743052475394,Building_5,building
+25,zero_net_energy,1.253350436318679,Building_5,building
+26,carbon_emissions,1.7385123057993495,Building_5,building
+27,cost,1.627174667128291,Building_5,building
