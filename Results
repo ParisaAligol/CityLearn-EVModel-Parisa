@@ -45,6 +45,41 @@ index,cost_function,value,name,level
 21,zero_net_energy,1.150683958557308,Building_4,building
 22,carbon_emissions,1.5990415380748024,Building_4,building
 23,cost,1.5882478363417933,Building_4,building
+
+{
+For SolarPenaltyReward
+and episods = 10
+
+}
+index,cost_function,value,name,level
+0,1 - load_factor,0.9860236631052607,District,district
+1,average_daily_peak,0.9208922379609968,District,district
+2,carbon_emissions,0.9820761414506641,District,district
+3,cost,0.93117391224006,District,district
+4,electricity_consumption,0.9855167673445987,District,district
+5,peak_demand,0.9509090249392254,District,district
+6,ramping,1.059913475797422,District,district
+7,zero_net_energy,1.0696851108290488,District,district
+8,electricity_consumption,0.9570986010308052,Building_1,building
+9,zero_net_energy,1.0847457058889043,Building_1,building
+10,carbon_emissions,0.9413713014911703,Building_1,building
+11,cost,0.8508697974970908,Building_1,building
+12,electricity_consumption,0.9588989923274013,Building_2,building
+13,zero_net_energy,1.0495332881786317,Building_2,building
+14,carbon_emissions,0.9550759670346511,Building_2,building
+15,cost,0.9104183617921203,Building_2,building
+16,electricity_consumption,1.0160611913280746,Building_3,building
+17,zero_net_energy,1.1609991245132107,Building_3,building
+18,carbon_emissions,1.0213858550457364,Building_3,building
+19,cost,0.9467243482432709,Building_3,building
+20,electricity_consumption,0.9961013138401323,Building_4,building
+21,zero_net_energy,1.0181837485211145,Building_4,building
+22,carbon_emissions,0.9963626205352444,Building_4,building
+23,cost,0.978597604160294,Building_4,building
+24,electricity_consumption,0.9994237381965801,Building_5,building
+25,zero_net_energy,1.034963687043383,Building_5,building
+26,carbon_emissions,0.9961849631465187,Building_5,building
+27,cost,0.9692594495075232,Building_5,building
 24,electricity_consumption,1.7780743052475394,Building_5,building
 25,zero_net_energy,1.253350436318679,Building_5,building
 26,carbon_emissions,1.7385123057993495,Building_5,building
