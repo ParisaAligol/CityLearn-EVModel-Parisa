@@ -84,3 +84,39 @@ index,cost_function,value,name,level
 25,zero_net_energy,1.253350436318679,Building_5,building
 26,carbon_emissions,1.7385123057993495,Building_5,building
 27,cost,1.627174667128291,Building_5,building
+
+
+{
+For uploading my dataset
+episodes = 5
+}
+index,cost_function,value,name,level
+0,1 - load_factor,1.001131356511689,District,district
+1,average_daily_peak,1.0000947024932694,District,district
+2,carbon_emissions,1.0005520350255588,District,district
+3,cost,0.9998918633715446,District,district
+4,electricity_consumption,1.0009138542995282,District,district
+5,peak_demand,1.0,District,district
+6,ramping,1.0090724139910865,District,district
+7,zero_net_energy,1.00090918599523,District,district
+8,electricity_consumption,1.000021788046866,Building_1,building
+9,zero_net_energy,1.0000205969756817,Building_1,building
+10,carbon_emissions,1.0000160488576249,Building_1,building
+11,cost,1.0000193212612702,Building_1,building
+12,electricity_consumption,1.003790121253682,Building_2,building
+13,zero_net_energy,1.0037679708033744,Building_2,building
+14,carbon_emissions,1.0021747960274194,Building_2,building
+15,cost,0.9983527615612974,Building_2,building
+16,electricity_consumption,1.0000238902599847,Building_3,building
+17,zero_net_energy,1.0000238902599847,Building_3,building
+18,carbon_emissions,1.0000476464634325,Building_3,building
+19,cost,1.0001182453127584,Building_3,building
+20,electricity_consumption,1.0,Building_4,building
+21,zero_net_energy,1.0,Building_4,building
+22,carbon_emissions,1.0,Building_4,building
+23,cost,1.0,Building_4,building
+24,electricity_consumption,1.0007334719371084,Building_5,building
+25,zero_net_energy,1.0007334719371084,Building_5,building
+26,carbon_emissions,1.0005216837793165,Building_5,building
+27,cost,1.000968988722397,Building_5,building
+
