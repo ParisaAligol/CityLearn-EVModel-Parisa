@@ -120,3 +120,44 @@ index,cost_function,value,name,level
 26,carbon_emissions,1.0005216837793165,Building_5,building
 27,cost,1.000968988722397,Building_5,building
 
+{
+For uploading my dataset
+episodes = 50
+}
+0	1 - load_factor	1.036879	District	district
+1	average_daily_peak	1.026508	District	district
+2	carbon_emissions	1.030383	District	district
+3	cost	1.026214	District	district
+4	electricity_consumption	1.030909	District	district
+5	peak_demand	1.011478	District	district
+6	ramping	1.386898	District	district
+7	zero_net_energy	1.008273	District	district
+8	electricity_consumption	1.002597	Building_1	building
+9	zero_net_energy	1.002136	Building_1	building
+10	carbon_emissions	1.001942	Building_1	building
+11	cost	1.003418	Building_1	building
+12	electricity_consumption	1.176978	Building_2	building
+13	zero_net_energy	1.039400	Building_2	building
+14	carbon_emissions	1.174994	Building_2	building
+15	cost	1.140666	Building_2	building
+16	electricity_consumption	1.008344	Building_3	building
+17	zero_net_energy	1.004903	Building_3	building
+18	carbon_emissions	1.005888	Building_3	building
+19	cost	1.007493	Building_3	building
+20	electricity_consumption	1.000478	Building_4	building
+21	zero_net_energy	1.000477	Building_4	building
+22	carbon_emissions	1.000333	Building_4	building
+23	cost	0.999814	Building_4	building
+24	electricity_consumption	1.009061	Building_5	building
+25	zero_net_energy	1.003513	Building_5	building
+26	carbon_emissions	1.009298	Building_5	building
+27	cost	1.008846	Building_5	building
+28	electricity_consumption	1.001410	Building_6	building
+29	zero_net_energy	1.001410	Building_6	building
+30	carbon_emissions	1.001706	Building_6	building
+31	cost	1.002976	Building_6	building
+32	electricity_consumption	1.017491	Building_7	building
+33	zero_net_energy	1.006072	Building_7	building
+34	carbon_emissions	1.018517	Building_7	building
+35	cost	1.020285	Building_7	building
+
