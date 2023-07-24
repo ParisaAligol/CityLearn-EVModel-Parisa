@@ -16,6 +16,7 @@ class SaveDataCallback(BaseCallback):
         self.episode = 0
         self.extras = {} if extras is None else extras
         self.mode = 'train'
+        os.makedirs(simulation_output_path, exist_ok=True)
 
     def _on_step(self) -> bool:
         # save timer data
