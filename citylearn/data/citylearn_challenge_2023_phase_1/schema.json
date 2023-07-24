@@ -193,23 +193,22 @@
       "pricing": "pricing.csv",
       "inactive_observations": [],
       "inactive_actions": [],
-      
-        "electrical_storage": {
+      "electrical_storage": {
         "type": "citylearn.energy_model.Battery",
         "autosize": false,
         "attributes": {
-          "capacity": 64.0,
+          "capacity": 6.4,
           "efficiency": 0.9,
           "capacity_loss_coefficient": 1e-05,
           "loss_coefficient": 0.0,
-          "nominal_power": 50.0
+          "nominal_power": 5.0
         }
       },
       "pv": {
         "type": "citylearn.energy_model.PV",
         "autosize": false,
         "attributes": {
-          "nominal_power": 120.0
+          "nominal_power": 4.0
         }
       },
       "electric_vehicles": [
@@ -222,7 +221,7 @@
             "efficiency": 0.9,
             "capacity_loss_coefficient": 1e-05,
             "loss_coefficient": 0.0,
-            "nominal_power": 49.0,
+            "nominal_power": 9.0,
             "soc_minimum_limit": 0.1,
             "soc_maximum_limit": 0.8,
             "discharge_count_limit": 2
@@ -237,7 +236,7 @@
             "efficiency": 0.9,
             "capacity_loss_coefficient": 1e-05,
             "loss_coefficient": 0.0,
-            "nominal_power": 52.0,
+            "nominal_power": 12.0,
             "soc_minimum_limit": 0.1,
             "soc_maximum_limit": 0.8,
             "discharge_count_limit": 2
@@ -252,36 +251,7 @@
             "efficiency": 0.9,
             "capacity_loss_coefficient": 1e-05,
             "loss_coefficient": 0.0,
-            "nominal_power": 30.0,
-            "soc_minimum_limit": 0.1,
-            "soc_maximum_limit": 0.8,
-            "discharge_count_limit": 2
-          },
-        {
-          "type": "citylearn.energy_model.ElectricVehicle",
-          "schedule": "Building_1_EV_4.csv",
-          "autosize": false,
-          "attributes": {
-            "capacity": 60.0,
-            "efficiency": 0.9,
-            "capacity_loss_coefficient": 1e-05,
-            "loss_coefficient": 0.0,
-            "nominal_power": 52.0,
-            "soc_minimum_limit": 0.1,
-            "soc_maximum_limit": 0.8,
-            "discharge_count_limit": 2
-          }
-        },
-        {
-          "type": "citylearn.energy_model.ElectricVehicle",
-          "schedule": "Building_1_EV_5.csv",
-          "autosize": false,
-          "attributes": {
-            "capacity": 40.0,
-            "efficiency": 0.9,
-            "capacity_loss_coefficient": 1e-05,
-            "loss_coefficient": 0.0,
-            "nominal_power": 30.0,
+            "nominal_power": 10.0,
             "soc_minimum_limit": 0.1,
             "soc_maximum_limit": 0.8,
             "discharge_count_limit": 2
@@ -292,237 +262,6 @@
     "Building_2": {
       "include": true,
       "energy_simulation": "Building_2.csv",
-      "weather": "weather.csv",
-      "carbon_intensity": "carbon_intensity.csv",
-      "pricing": "pricing.csv",
-      "inactive_observations": [],
-      "inactive_actions": [],
-      "electrical_storage": {
-        "type": "citylearn.energy_model.Battery",
-        "autosize": false,
-        "attributes": {
-          "capacity": 64.0,
-          "efficiency": 0.9,
-          "capacity_loss_coefficient": 1e-05,
-          "loss_coefficient": 0.0,
-          "nominal_power": 50.0
-        }
-      },
-      "pv": {
-        "type": "citylearn.energy_model.PV",
-        "autosize": false,
-        "attributes": {
-          "nominal_power": 0.0
-        }
-      },
-      "electric_vehicles": [
-        {
-          "type": "citylearn.energy_model.ElectricVehicle",
-          "schedule": "Building_2_EV_1.csv",
-          "autosize": false,
-          "attributes": {
-            "capacity": 40.0,
-            "efficiency": 0.9,
-            "capacity_loss_coefficient": 1e-05,
-            "loss_coefficient": 0.0,
-            "nominal_power": 30.0,
-            "soc_minimum_limit": 0.1,
-            "soc_maximum_limit": 0.8,
-            "discharge_count_limit": 2
-          }
-        },
-        {
-          "type": "citylearn.energy_model.ElectricVehicle",
-          "schedule": "Building_2_EV_2.csv",
-          "autosize": false,
-          "attributes": {
-            "capacity": 60.0,
-            "efficiency": 0.9,
-            "capacity_loss_coefficient": 1e-05,
-            "loss_coefficient": 0.0,
-            "nominal_power": 50.0,
-            "soc_minimum_limit": 0.1,
-            "soc_maximum_limit": 0.8,
-            "discharge_count_limit": 2
-          }
-        },
-        {
-          "type": "citylearn.energy_model.ElectricVehicle",
-          "schedule": "Building_2_EV_3.csv",
-          "autosize": false,
-          "attributes": {
-            "capacity": 80.0,
-            "efficiency": 0.9,
-            "capacity_loss_coefficient": 1e-05,
-            "loss_coefficient": 0.0,
-            "nominal_power": 69.0,
-            "soc_minimum_limit": 0.1,
-            "soc_maximum_limit": 0.8,
-            "discharge_count_limit": 2
-          }      
-        }
-      ]
-    },
-    "Building_3": {
-      "include": true,
-      "energy_simulation": "Building_3.csv",
-      "weather": "weather.csv",
-      "carbon_intensity": "carbon_intensity.csv",
-      "pricing": "pricing.csv",
-      "inactive_observations": [],
-      "inactive_actions": [],
-      "electrical_storage": {
-        "type": "citylearn.energy_model.Battery",
-        "autosize": false,
-        "attributes": {
-          "capacity": 60.4,
-          "efficiency": 0.9,
-          "capacity_loss_coefficient": 1e-05,
-          "loss_coefficient": 0.0,
-          "nominal_power": 50.0
-        }
-      },
-      "pv": {
-        "type": "citylearn.energy_model.PV",
-        "autosize": false,
-        "attributes": {
-          "nominal_power": 0.0
-        }
-      }
-    },
-    "Building_4": {
-      "include": true,
-      "energy_simulation": "Building_4.csv",
-      "weather": "weather.csv",
-      "carbon_intensity": "carbon_intensity.csv",
-      "pricing": "pricing.csv",
-      "inactive_observations": [],
-      "inactive_actions": [],
-      "electrical_storage": {
-        "type": "citylearn.energy_model.Battery",
-        "autosize": false,
-        "attributes": {
-          "capacity": 60.4,
-          "efficiency": 0.9,
-          "capacity_loss_coefficient": 1e-05,
-          "loss_coefficient": 0.0,
-          "nominal_power": 50.0
-        }
-      },
-      "pv": {
-        "type": "citylearn.energy_model.PV",
-        "autosize": false,
-        "attributes": {
-          "nominal_power": 0.0
-        }
-      },
-      "electric_vehicles": [
-        {
-          "type": "citylearn.energy_model.ElectricVehicle",
-          "schedule": "Building_4_EV_1.csv",
-          "autosize": false,
-          "attributes": {
-            "capacity": 40.0,
-            "efficiency": 0.9,
-            "capacity_loss_coefficient": 1e-05,
-            "loss_coefficient": 0.0,
-            "nominal_power": 32.0,
-            "soc_minimum_limit": 0.1,
-            "soc_maximum_limit": 0.8,
-            "discharge_count_limit": 2
-          }
-        },
-        {
-          "type": "citylearn.energy_model.ElectricVehicle",
-          "schedule": "Building_4_EV_2.csv",
-          "autosize": false,
-          "attributes": {
-            "capacity": 80.0,
-            "efficiency": 0.9,
-            "capacity_loss_coefficient": 1e-05,
-            "loss_coefficient": 0.0,
-            "nominal_power": 72.0,
-            "soc_minimum_limit": 0.1,
-            "soc_maximum_limit": 0.8,
-            "discharge_count_limit": 2
-          }
-        },
-        {
-          "type": "citylearn.energy_model.ElectricVehicle",
-          "schedule": "Building_4_EV_3.csv",
-          "autosize": false,
-          "attributes": {
-            "capacity": 100.0,
-            "efficiency": 0.9,
-            "capacity_loss_coefficient": 1e-05,
-            "loss_coefficient": 0.0,
-            "nominal_power": 90.0,
-            "soc_minimum_limit": 0.1,
-            "soc_maximum_limit": 0.8,
-            "discharge_count_limit": 2
-          }
-        },
-        {
-          "type": "citylearn.energy_model.ElectricVehicle",
-          "schedule": "Building_4_EV_4.csv",
-          "autosize": false,
-          "attributes": {
-            "capacity": 80.0,
-            "efficiency": 0.9,
-            "capacity_loss_coefficient": 1e-05,
-            "loss_coefficient": 0.0,
-            "nominal_power": 72.0,
-            "soc_minimum_limit": 0.1,
-            "soc_maximum_limit": 0.8,
-            "discharge_count_limit": 2
-          }
-        },
-        {
-          "type": "citylearn.energy_model.ElectricVehicle",
-          "schedule": "Building_4_EV_5.csv",
-          "autosize": false,
-          "attributes": {
-            "capacity": 100.0,
-            "efficiency": 0.9,
-            "capacity_loss_coefficient": 1e-05,
-            "loss_coefficient": 0.0,
-            "nominal_power": 90.0,
-            "soc_minimum_limit": 0.1,
-            "soc_maximum_limit": 0.8,
-            "discharge_count_limit": 2
-          }
-        }
-      ]
-    },
-    "Building_5": {
-      "include": true,
-      "energy_simulation": "Building_5.csv",
-      "weather": "weather.csv",
-      "carbon_intensity": "carbon_intensity.csv",
-      "pricing": "pricing.csv",
-      "inactive_observations": [],
-      "inactive_actions": [],
-      "electrical_storage": {
-        "type": "citylearn.energy_model.Battery",
-        "autosize": false,
-        "attributes": {
-          "capacity": 60.4,
-          "efficiency": 0.9,
-          "capacity_loss_coefficient": 1e-05,
-          "loss_coefficient": 0.0,
-          "nominal_power": 50.0
-        }
-      },
-      "pv": {
-        "type": "citylearn.energy_model.PV",
-        "autosize": false,
-        "attributes": {
-          "nominal_power": 0.0
-        }
-      },
-    "Building_6": {
-      "include": true,
-      "energy_simulation": "Building_6.csv",
       "weather": "weather.csv",
       "carbon_intensity": "carbon_intensity.csv",
       "pricing": "pricing.csv",
@@ -543,20 +282,20 @@
         "type": "citylearn.energy_model.PV",
         "autosize": false,
         "attributes": {
-          "nominal_power": 0.0
+          "nominal_power": 4.0
         }
       },
       "electric_vehicles": [
         {
           "type": "citylearn.energy_model.ElectricVehicle",
-          "schedule": "Building_6_EV_1.csv",
+          "schedule": "Building_2_EV_1.csv",
           "autosize": false,
           "attributes": {
             "capacity": 40.0,
             "efficiency": 0.9,
             "capacity_loss_coefficient": 1e-05,
             "loss_coefficient": 0.0,
-            "nominal_power": 32.0,
+            "nominal_power": 10.0,
             "soc_minimum_limit": 0.1,
             "soc_maximum_limit": 0.8,
             "discharge_count_limit": 2
@@ -564,14 +303,29 @@
         },
         {
           "type": "citylearn.energy_model.ElectricVehicle",
-          "schedule": "Building_6_EV_2.csv",
+          "schedule": "Building_2_EV_2.csv",
+          "autosize": false,
+          "attributes": {
+            "capacity": 60.0,
+            "efficiency": 0.9,
+            "capacity_loss_coefficient": 1e-05,
+            "loss_coefficient": 0.0,
+            "nominal_power": 10.0,
+            "soc_minimum_limit": 0.1,
+            "soc_maximum_limit": 0.8,
+            "discharge_count_limit": 2
+          }
+        },
+        {
+          "type": "citylearn.energy_model.ElectricVehicle",
+          "schedule": "Building_2_EV_3.csv",
           "autosize": false,
           "attributes": {
             "capacity": 80.0,
             "efficiency": 0.9,
             "capacity_loss_coefficient": 1e-05,
             "loss_coefficient": 0.0,
-            "nominal_power": 72.0,
+            "nominal_power": 9.0,
             "soc_minimum_limit": 0.1,
             "soc_maximum_limit": 0.8,
             "discharge_count_limit": 2
@@ -579,14 +333,14 @@
         },
         {
           "type": "citylearn.energy_model.ElectricVehicle",
-          "schedule": "Building_6_EV_3.csv",
+          "schedule": "Building_2_EV_4.csv",
           "autosize": false,
           "attributes": {
             "capacity": 100.0,
             "efficiency": 0.9,
             "capacity_loss_coefficient": 1e-05,
             "loss_coefficient": 0.0,
-            "nominal_power": 90.0,
+            "nominal_power": 10.0,
             "soc_minimum_limit": 0.1,
             "soc_maximum_limit": 0.8,
             "discharge_count_limit": 2
@@ -594,44 +348,14 @@
         },
         {
           "type": "citylearn.energy_model.ElectricVehicle",
-          "schedule": "Building_6_EV_4.csv",
-          "autosize": false,
-          "attributes": {
-            "capacity": 80.0,
-            "efficiency": 0.9,
-            "capacity_loss_coefficient": 1e-05,
-            "loss_coefficient": 0.0,
-            "nominal_power": 72.0,
-            "soc_minimum_limit": 0.1,
-            "soc_maximum_limit": 0.8,
-            "discharge_count_limit": 2
-          }
-        },
-        {
-          "type": "citylearn.energy_model.ElectricVehicle",
-          "schedule": "Building_6_EV_5.csv",
+          "schedule": "Building_2_EV_5.csv",
           "autosize": false,
           "attributes": {
             "capacity": 100.0,
             "efficiency": 0.9,
             "capacity_loss_coefficient": 1e-05,
             "loss_coefficient": 0.0,
-            "nominal_power": 90.0,
-            "soc_minimum_limit": 0.1,
-            "soc_maximum_limit": 0.8,
-            "discharge_count_limit": 2
-          }
-        },
-        {
-          "type": "citylearn.energy_model.ElectricVehicle",
-          "schedule": "Building_6_EV_6.csv",
-          "autosize": false,
-          "attributes": {
-            "capacity": 100.0,
-            "efficiency": 0.9,
-            "capacity_loss_coefficient": 1e-05,
-            "loss_coefficient": 0.0,
-            "nominal_power": 90.0,
+            "nominal_power": 9.0,
             "soc_minimum_limit": 0.1,
             "soc_maximum_limit": 0.8,
             "discharge_count_limit": 2
@@ -639,9 +363,9 @@
         }
       ]
     },
-    "Building_7": {
+    "Building_3": {
       "include": true,
-      "energy_simulation": "Building_7.csv",
+      "energy_simulation": "Building_3.csv",
       "weather": "weather.csv",
       "carbon_intensity": "carbon_intensity.csv",
       "pricing": "pricing.csv",
@@ -651,21 +375,245 @@
         "type": "citylearn.energy_model.Battery",
         "autosize": false,
         "attributes": {
-          "capacity": 60.4,
+          "capacity": 6.4,
           "efficiency": 0.9,
           "capacity_loss_coefficient": 1e-05,
           "loss_coefficient": 0.0,
-          "nominal_power": 50.0
+          "nominal_power": 5.0
         }
       },
       "pv": {
         "type": "citylearn.energy_model.PV",
         "autosize": false,
         "attributes": {
-          "nominal_power": 0.0
+          "nominal_power": 4.0
         }
-      }
-        
+      },
+      "electric_vehicles": [
+        {
+          "type": "citylearn.energy_model.ElectricVehicle",
+          "schedule": "Building_3_EV_1.csv",
+          "autosize": false,
+          "attributes": {
+            "capacity": 40.0,
+            "efficiency": 0.9,
+            "capacity_loss_coefficient": 1e-05,
+            "loss_coefficient": 0.0,
+            "nominal_power": 8.0,
+            "soc_minimum_limit": 0.1,
+            "soc_maximum_limit": 0.8,
+            "discharge_count_limit": 2
+          }
+        },
+        {
+          "type": "citylearn.energy_model.ElectricVehicle",
+          "schedule": "Building_3_EV_2.csv",
+          "autosize": false,
+          "attributes": {
+            "capacity": 40.0,
+            "efficiency": 0.9,
+            "capacity_loss_coefficient": 1e-05,
+            "loss_coefficient": 0.0,
+            "nominal_power": 10.0,
+            "soc_minimum_limit": 0.1,
+            "soc_maximum_limit": 0.8,
+            "discharge_count_limit": 2
+          }
+        },
+        {
+          "type": "citylearn.energy_model.ElectricVehicle",
+          "schedule": "Building_3_EV_3.csv",
+          "autosize": false,
+          "attributes": {
+            "capacity": 100.0,
+            "efficiency": 0.9,
+            "capacity_loss_coefficient": 1e-05,
+            "loss_coefficient": 0.0,
+            "nominal_power": 8.0,
+            "soc_minimum_limit": 0.1,
+            "soc_maximum_limit": 0.8,
+            "discharge_count_limit": 2
+          }
+        },
+        {
+          "type": "citylearn.energy_model.ElectricVehicle",
+          "schedule": "Building_3_EV_4.csv",
+          "autosize": false,
+          "attributes": {
+            "capacity": 100.0,
+            "efficiency": 0.9,
+            "capacity_loss_coefficient": 1e-05,
+            "loss_coefficient": 0.0,
+            "nominal_power": 10.0,
+            "soc_minimum_limit": 0.1,
+            "soc_maximum_limit": 0.8,
+            "discharge_count_limit": 2
+          }
+        },
+        {
+          "type": "citylearn.energy_model.ElectricVehicle",
+          "schedule": "Building_3_EV_5.csv",
+          "autosize": false,
+          "attributes": {
+            "capacity": 40.0,
+            "efficiency": 0.9,
+            "capacity_loss_coefficient": 1e-05,
+            "loss_coefficient": 0.0,
+            "nominal_power": 10.0,
+            "soc_minimum_limit": 0.1,
+            "soc_maximum_limit": 0.8,
+            "discharge_count_limit": 2
+          }
+        }
+      ]
+    },
+    "Building_4": {
+      "include": true,
+      "energy_simulation": "Building_4.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": "carbon_intensity.csv",
+      "pricing": "pricing.csv",
+      "inactive_observations": [],
+      "inactive_actions": [],
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 6.4,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": 0.0,
+          "nominal_power": 5.0
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 5.0
+        }
+      },
+      "electric_vehicles": [
+        {
+          "type": "citylearn.energy_model.ElectricVehicle",
+          "schedule": "Building_4_EV_1.csv",
+          "autosize": false,
+          "attributes": {
+            "capacity": 40.0,
+            "efficiency": 0.9,
+            "capacity_loss_coefficient": 1e-05,
+            "loss_coefficient": 0.0,
+            "nominal_power": 12.0,
+            "soc_minimum_limit": 0.1,
+            "soc_maximum_limit": 0.8,
+            "discharge_count_limit": 2
+          }
+        },
+        {
+          "type": "citylearn.energy_model.ElectricVehicle",
+          "schedule": "Building_4_EV_2.csv",
+          "autosize": false,
+          "attributes": {
+            "capacity": 80.0,
+            "efficiency": 0.9,
+            "capacity_loss_coefficient": 1e-05,
+            "loss_coefficient": 0.0,
+            "nominal_power": 12.0,
+            "soc_minimum_limit": 0.1,
+            "soc_maximum_limit": 0.8,
+            "discharge_count_limit": 2
+          }
+        },
+        {
+          "type": "citylearn.energy_model.ElectricVehicle",
+          "schedule": "Building_4_EV_3.csv",
+          "autosize": false,
+          "attributes": {
+            "capacity": 100.0,
+            "efficiency": 0.9,
+            "capacity_loss_coefficient": 1e-05,
+            "loss_coefficient": 0.0,
+            "nominal_power": 9.0,
+            "soc_minimum_limit": 0.1,
+            "soc_maximum_limit": 0.8,
+            "discharge_count_limit": 2
+          }
+        }
+      ]
+    },
+    "Building_5": {
+      "include": true,
+      "energy_simulation": "Building_5.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": "carbon_intensity.csv",
+      "pricing": "pricing.csv",
+      "inactive_observations": [],
+      "inactive_actions": [],
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 6.4,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": 0.0,
+          "nominal_power": 5.0
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 4.0
+        }
+      },
+      "electric_vehicles": [
+        {
+          "type": "citylearn.energy_model.ElectricVehicle",
+          "schedule": "Building_5_EV_1.csv",
+          "autosize": false,
+          "attributes": {
+            "capacity": 80.0,
+            "efficiency": 0.9,
+            "capacity_loss_coefficient": 1e-05,
+            "loss_coefficient": 0.0,
+            "nominal_power": 10.0,
+            "soc_minimum_limit": 0.1,
+            "soc_maximum_limit": 0.8,
+            "discharge_count_limit": 2
+          }
+        },
+        {
+          "type": "citylearn.energy_model.ElectricVehicle",
+          "schedule": "Building_5_EV_2.csv",
+          "autosize": false,
+          "attributes": {
+            "capacity": 100.0,
+            "efficiency": 0.9,
+            "capacity_loss_coefficient": 1e-05,
+            "loss_coefficient": 0.0,
+            "nominal_power": 8.0,
+            "soc_minimum_limit": 0.1,
+            "soc_maximum_limit": 0.8,
+            "discharge_count_limit": 2
+          }
+        },
+        {
+          "type": "citylearn.energy_model.ElectricVehicle",
+          "schedule": "Building_5_EV_3.csv",
+          "autosize": false,
+          "attributes": {
+            "capacity": 80.0,
+            "efficiency": 0.9,
+            "capacity_loss_coefficient": 1e-05,
+            "loss_coefficient": 0.0,
+            "nominal_power": 12.0,
+            "soc_minimum_limit": 0.1,
+            "soc_maximum_limit": 0.8,
+            "discharge_count_limit": 2
+          }
+        }
+      ]
     }
   }
 }
