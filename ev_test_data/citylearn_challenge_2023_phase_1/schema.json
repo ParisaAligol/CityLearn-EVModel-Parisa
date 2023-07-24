@@ -520,7 +520,8 @@
         "attributes": {
           "nominal_power": 0.0
         }
-      },
+      }
+    },
     "Building_6": {
       "include": true,
       "energy_simulation": "Building_6.csv",
