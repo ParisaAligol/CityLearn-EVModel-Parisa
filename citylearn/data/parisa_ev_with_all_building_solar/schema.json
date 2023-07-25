@@ -193,8 +193,7 @@
       "pricing": "pricing.csv",
       "inactive_observations": [],
       "inactive_actions": [],
-      
-        "electrical_storage": {
+      "electrical_storage": {
         "type": "citylearn.energy_model.Battery",
         "autosize": false,
         "attributes": {
@@ -360,7 +359,7 @@
             "soc_minimum_limit": 0.1,
             "soc_maximum_limit": 0.8,
             "discharge_count_limit": 2
-          }      
+          }
         }
       ]
     },
@@ -666,7 +665,7 @@
         "attributes": {
           "nominal_power": 8.0
         }
-      }     
+      }
     }
   }
 }

@@ -185,4 +185,4 @@ test_notebooks/
 
 models/
 results/
-data/
+temp_store/
