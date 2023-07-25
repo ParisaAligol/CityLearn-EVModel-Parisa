@@ -286,3 +286,31 @@ class SolarPenaltyAndComfortReward(RewardFunction):
         reward = reward.sum(axis=0).tolist()
 
         return reward
+
+class CustomEVReward(RewardFunction):
+    def __init__(self, env: CityLearnEnv):
+        super().__init__(env)
+
+    def calculate(self):
+        reward_list = []
+
+        for b in self.env.buildings:
+            e = b.net_electricity_consumption[-1]
+            reward = 0.0
+
+            for s in [b.electrical_storage] + b.electric_vehicles:
+                if not isinstance(s, ElectricVehicle) or (isinstance(s, ElectricVehicle) and s.schedule.availability[-1] == 1):
+                    c = s.capacity_history[0]
+                    s = s.soc[-1]/c
+                    reward += -(1.0 + np.sign(e)*s)*abs(e) if c > ZERO_DIVISION_CAPACITY else 0.0
+                else:
+                    pass
+            
+            reward_list.append(reward)
+
+        if self.env.central_agent:
+            reward = [sum(reward_list)]
+        else:
+            reward = reward_list
+
+        return reward
