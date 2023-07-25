@@ -4,12 +4,10 @@ import inspect
 import os
 import shutil
 import sys
-import numpy as np
 from citylearn.agents.marlisa import MARLISA
 from citylearn.callback import SaveDataCallback, SaveModelCallback
 from citylearn.citylearn import CityLearnEnv
-from citylearn.energy_model import ElectricVehicle, ZERO_DIVISION_CAPACITY
-from citylearn.reward_function import RewardFunction
+from citylearn.reward_function import CustomEVReward, MARL, RewardFunction
 from citylearn.wrappers import NormalizedObservationWrapper, StableBaselines3Wrapper
 from stable_baselines3.common.callbacks import CheckpointCallback
 from stable_baselines3.sac import SAC
@@ -27,7 +25,19 @@ def run(func, work_order: list, max_workers: int = None):
                 print(e)
                 # raise e
 
-def train_rl_agent(agent_name: str, simulation_id: str, schema: dict, episodes: int, reward_function: RewardFunction, model_directory, results_directory: str, **kwargs):
+def train_rl_agent(agent_name: str, schema: str, episodes: int, reward_function: RewardFunction, model_directory, results_directory: str, simulation_id: str = None, **kwargs):
+    if isinstance(reward_function, str):
+        reward_function = {
+            'MARL': MARL,
+            'CustomEVReward': CustomEVReward
+        }[reward_function]
+    
+    else:
+        pass
+
+    default_simulation_id = f'{agent_name}-{schema}-{reward_function.__name__}'.lower()
+    simulation_id = default_simulation_id if simulation_id is None else simulation_id
+
     if agent_name == 'sac':
         func = train_sac_agent
     elif agent_name == 'marlisa':
@@ -116,12 +126,12 @@ def main():
     # train
     subparser_train = subparsers.add_parser('train')
     subparser_train.add_argument('agent_name', type=str)
-    subparser_train.add_argument('simulation_id', type=str)
     subparser_train.add_argument('schema', type=str)
     subparser_train.add_argument('episodes', type=int)
     subparser_train.add_argument('reward_function', type=str)
     subparser_train.add_argument('model_directory', type=str)
     subparser_train.add_argument('results_directory', type=str)
+    subparser_train.add_argument('-s', '--simulation_id', dest='simulation_id', type=str)
     subparser_train.set_defaults(func=train_rl_agent)
 
     args = parser.parse_args()
