@@ -6,6 +6,7 @@ import pickle
 from typing import Any, List, Mapping, Tuple, Union
 from gym import spaces
 from citylearn.base import Environment
+from citylearn.callback import SaveDataCallback, SaveModelCallback
 from citylearn.citylearn import CityLearnEnv
 
 LOGGER = logging.getLogger()
@@ -100,7 +101,8 @@ class Agent(Environment):
 
     def learn(
             self, episodes: int = None, keep_env_history: bool = None, env_history_directory: Union[str, Path] = None, 
-            deterministic: bool = None, deterministic_finish: bool = None, logging_level: int = None
+            deterministic: bool = None, deterministic_finish: bool = None, logging_level: int = None, 
+            save_data_callback: SaveDataCallback = None, save_model_callback: SaveModelCallback = None,
         ):
         """Train agent.
 
@@ -151,7 +153,17 @@ class Agent(Environment):
 
                 observations = [o for o in next_observations]
 
-                logging.debug(
+                if save_data_callback is not None:
+                    _ = save_data_callback._on_step()
+                else:
+                    pass
+
+                if save_model_callback is not None:
+                    _ = save_model_callback._on_step()
+                else:
+                    pass
+
+                LOGGER.debug(
                     f'Time step: {self.env.time_step}/{self.env.time_steps - 1},'\
                         f' Episode: {episode}/{episodes - 1},'\
                             f' Actions: {actions},'\
