@@ -209,7 +209,7 @@
         "type": "citylearn.energy_model.PV",
         "autosize": false,
         "attributes": {
-          "nominal_power": 24.0
+          "nominal_power": 170
         }
       },
       "electric_vehicles": [
@@ -313,7 +313,7 @@
         "type": "citylearn.energy_model.PV",
         "autosize": false,
         "attributes": {
-          "nominal_power": 8.0
+          "nominal_power": 0.0
         }
       },
       "electric_vehicles": [
@@ -387,7 +387,7 @@
         "type": "citylearn.energy_model.PV",
         "autosize": false,
         "attributes": {
-          "nominal_power": 15.0
+          "nominal_power": 0.0
         }
       }
     },
@@ -414,7 +414,7 @@
         "type": "citylearn.energy_model.PV",
         "autosize": false,
         "attributes": {
-          "nominal_power": 20.0
+          "nominal_power": 0.0
         }
       },
       "electric_vehicles": [
@@ -518,7 +518,7 @@
         "type": "citylearn.energy_model.PV",
         "autosize": false,
         "attributes": {
-          "nominal_power": 9.0
+          "nominal_power": 0.0
         }
       }
     },
@@ -545,7 +545,7 @@
         "type": "citylearn.energy_model.PV",
         "autosize": false,
         "attributes": {
-          "nominal_power": 33.0
+          "nominal_power": 0.0
         }
       },
       "electric_vehicles": [
@@ -664,7 +664,7 @@
         "type": "citylearn.energy_model.PV",
         "autosize": false,
         "attributes": {
-          "nominal_power": 8.0
+          "nominal_power": 0.0
         }
       }     
     }
