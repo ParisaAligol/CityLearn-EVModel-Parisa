@@ -396,11 +396,11 @@
           "schedule": "Building_3_EV_1.csv",
           "autosize": false,
           "attributes": {
-            "capacity": 60.0,
+            "capacity": 00.0,
             "efficiency": 0.9,
             "capacity_loss_coefficient": 1e-05,
             "loss_coefficient": 0.0,
-            "nominal_power": 49.0,
+            "nominal_power": 0.0,
             "soc_minimum_limit": 0.1,
             "soc_maximum_limit": 0.8,
             "discharge_count_limit": 2
@@ -544,11 +544,11 @@
           "schedule": "Building_5_EV_1.csv",
           "autosize": false,
           "attributes": {
-            "capacity": 60.0,
+            "capacity": 0.0,
             "efficiency": 0.9,
             "capacity_loss_coefficient": 1e-05,
             "loss_coefficient": 0.0,
-            "nominal_power": 49.0,
+            "nominal_power": 0.0,
             "soc_minimum_limit": 0.1,
             "soc_maximum_limit": 0.8,
             "discharge_count_limit": 2
@@ -707,11 +707,11 @@
           "schedule": "Building_7_EV_1.csv",
           "autosize": false,
           "attributes": {
-            "capacity": 60.0,
+            "capacity": 0.0,
             "efficiency": 0.9,
             "capacity_loss_coefficient": 1e-05,
             "loss_coefficient": 0.0,
-            "nominal_power": 49.0,
+            "nominal_power": 0.0,
             "soc_minimum_limit": 0.1,
             "soc_maximum_limit": 0.8,
             "discharge_count_limit": 2
