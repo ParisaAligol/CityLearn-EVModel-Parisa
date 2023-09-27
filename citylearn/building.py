@@ -276,7 +276,7 @@ class Building(Environment):
             heating_electricity_consumption_difference = self.dhw_device.get_input_power(heating_demand_difference)
         
         # net electricity consumption without storage and partial load
-        return self.net_electricity_consumption_without_storage + np.sum([
+        return self.net_electricity_consumption_without_storage + self.energy_to_electric_vehicles + np.sum([
             cooling_electricity_consumption_difference,
             heating_electricity_consumption_difference,
         ], axis = 0)
@@ -362,7 +362,7 @@ class Building(Environment):
         + `dhw_electricity_consumption` + `electrical_storage_electricity_consumption` + `non_shiftable_load_demand` + `solar_generation`
         """
 
-        return self.__net_electricity_consumption
+        return self.__net_electricity_consumption 
 
     @property
     def cooling_electricity_consumption(self) -> List[float]:
