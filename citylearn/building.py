@@ -332,7 +332,7 @@ class Building(Environment):
         + `electric_vehicles_electricity_consumption`)
         """
 
-        return self.net_electricity_consumption - np.sum([
+        return self.net_electricity_consumption + self.energy_to_electric_vehicles - np.sum([
             self.cooling_storage_electricity_consumption,
             self.heating_storage_electricity_consumption,
             self.dhw_storage_electricity_consumption,
