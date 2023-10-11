@@ -950,13 +950,13 @@ class ElectricVehicle(Battery):
     def ev_energy (self) -> np.ndarray:
         data = []
     
-      for ev in self.electric_vehicles:
-          if ev.soc < ev.soc_maximum_limit and  ev.self.schedule.availability[self.time_step] == 1:
-              capacity_limit = self.soc_maximum_limit*self.capacity_history[0]
-              energy_to_limit = (capacity_limit - self.soc_init)/self.round_trip_efficiency
-              energy = min(energy_to_limit, energy)
+        for ev in self.electric_vehicles:
+            if ev.soc < ev.soc_maximum_limit and  ev.self.schedule.availability[self.time_step] == 1:
+                capacity_limit = self.soc_maximum_limit*self.capacity_history[0]
+                energy_to_limit = (capacity_limit - self.soc_init)/self.round_trip_efficiency
+                energy = min(energy_to_limit, energy)
     
-              data.append((ev.energy*ev.schedule.availability[0:self.time_step + 1]).clip(min=0))
+                data.append((ev.energy*ev.schedule.availability[0:self.time_step + 1]).clip(min=0))
     
           return np.sum(data, axis=0)
     
