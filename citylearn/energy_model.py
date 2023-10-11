@@ -946,7 +946,20 @@ class ElectricVehicle(Battery):
                 energy = 0.0
         
         super().charge(energy)
-
+    
+    def ev_energy (self) -> np.ndarray:
+        data = []
+    
+      for ev in self.electric_vehicles:
+          if ev.soc < ev.soc_maximum_limit and  ev.self.schedule.availability[self.time_step] == 1:
+              capacity_limit = self.soc_maximum_limit*self.capacity_history[0]
+              energy_to_limit = (capacity_limit - self.soc_init)/self.round_trip_efficiency
+              energy = min(energy_to_limit, energy)
+    
+              data.append((ev.energy*ev.schedule.availability[0:self.time_step + 1]).clip(min=0))
+    
+          return np.sum(data, axis=0)
+    
     def degrade(self) -> float:
         # We do not know how the EV travels while away from the building
         # so we choose not to make assumptions about degradation the
