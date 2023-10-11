@@ -484,7 +484,7 @@ class Building(Environment):
     
                 data.append((ev.energy*ev.schedule.availability[0:self.time_step + 1]).clip(min=0))
     
-          return np.sum(data, axis=0)
+        return np.sum(data, axis=0)
 
 
     @property
