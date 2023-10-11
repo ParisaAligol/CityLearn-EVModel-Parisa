@@ -473,7 +473,7 @@ class Building(Environment):
 
         return np.sum(data, axis=0)
     
-    def ev_energy (self) -> np.ndarray:
+    def ev_energy(self) -> np.ndarray:
         data = []
     
         for ev in self.electric_vehicles:
