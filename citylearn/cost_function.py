@@ -272,4 +272,31 @@ class CostFunction:
             data['discomfort_delta_maximum'].tolist(),
             data['discomfort_delta_average'].tolist()
         )
-        
+
+    def self_consumption(net_electricity_consumption: List[float]) -> List[float]:
+        r"""Calculate the self-consumption cost.
+    
+        Self-consumption is defined as the ratio of electricity received from the grid
+        to the total electricity consumption.
+    
+        Parameters
+        ----------
+        net_electricity_consumption : List[float]
+            Electricity consumption time series.
+    
+        Returns
+        -------
+        self_consumption_cost : List[float]
+            Self-consumption cost.
+        """
+    
+        data = pd.DataFrame({'net_electricity_consumption': np.array(net_electricity_consumption)})
+    
+        # Calculate total electricity consumption as the absolute sum of net consumption
+        total_electricity_consumption = np.abs(data['net_electricity_consumption']).sum()
+    
+        # Calculate self-consumption cost as the ratio of electricity received from the grid
+        # to total electricity consumption
+        data['self_consumption'] = data['net_electricity_consumption'] / total_electricity_consumption
+    
+        return data['self_consumption'].tolist()
