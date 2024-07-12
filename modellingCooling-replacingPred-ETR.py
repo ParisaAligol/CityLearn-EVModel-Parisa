@@ -4,7 +4,6 @@ Created on Mon Jul  8 10:34:57 2024
 
 @author: iaavenda
 """
-!pip install sklearn
 from sklearn.ensemble import RandomForestRegressor
 from xgboost import XGBRegressor
 from sklearn.ensemble import ExtraTreesRegressor
