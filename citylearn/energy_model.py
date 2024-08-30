@@ -5,6 +5,25 @@ from citylearn.data import ElectricVehicleSchedule
 np.seterr(divide='ignore', invalid='ignore')
 ZERO_DIVISION_CAPACITY = 0.00001
 
+import sklearn
+from sklearn.ensemble import RandomForestRegressor
+from xgboost import XGBRegressor
+from sklearn.ensemble import ExtraTreesRegressor
+from quantile_forest import ExtraTreesQuantileRegressor
+
+from sklearn.linear_model import LinearRegression
+# from lineartree import LinearForestRegressor
+
+import pandas as pd
+from sklearn.metrics import mean_squared_error
+
+
+import os, sys
+from sklearn.metrics import mean_absolute_percentage_error
+from sklearn.metrics import r2_score
+
+from sklearn.metrics import mean_absolute_error
+
 class Device(Environment):
     r"""Base device class.
 
@@ -36,6 +55,60 @@ class Device(Environment):
         else:
             assert efficiency > 0, 'efficiency must be > 0.'
             self.__efficiency = efficiency
+
+
+class MLHVAC(Device):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.model = LinearExtraForestRegressor(base_estimator=LinearRegression(), random_state=42, n_jobs=-1)
+        self.lags_order = 4
+        self.window = 1*24*7*5
+
+    def get_data(self):
+        target_name = 'cooling_demand'
+        setpoint_name = 'indoor_dry_bulb_temperature_set_point'
+        df = df.loc[:, [target_name, setpoint_name, 'indoor_dry_bulb_temperature']]
+
+        df = self.df
+        target_train = df.loc[:, [target_name]]
+        exg = df.drop(columns=[target_name])
+
+        for j in range(1, self.lags_order + 1):
+            for col in df.columns:
+                exg.loc[:, col + '-' + str(j) + 'lag'] = df[col].shift(j)
+
+        exg['hour_sin'] = np.sin(2 * np.pi * (exg.index.hour) / 24.0)
+        exg['day_sin'] = np.sin(2 * np.pi * exg.index.dayofweek / 7.0)
+        exg['hour_cos'] = np.cos(2 * np.pi * (exg.index.hour) / 24.0)
+        exg['day_cos'] = np.cos(2 * np.pi * exg.index.dayofweek / 7.0)
+
+        exg.dropna(inplace=True)
+        exg.drop(columns=['outdoor_dry_bulb_temperature', 'direct_solar_irradiance'], inplace=True)
+
+        self.target_train = target_train.loc[exg.index, :]
+        self.exg = exg
+
+    def train(self):
+        target_train = self.target_train
+        exg = self.exg
+        window = self.window
+
+        for k in range(window, len(target_train), 1):
+            target_val = target_train.iloc[k - window:k]
+            exg_val = exg.iloc[k - window:k]
+            target_test = target_train.iloc[k]
+            exg_test = exg.iloc[[k], :]
+
+            ML_CV = self.model.fit(exg_val, target_val)
+            target_hat = ML_CV.predict(exg_test)
+            target_train.iloc[k] = target_hat
+
+        self.target_train = target_train
+
+    def predict(self, exg_test):
+        return self.model.predict(exg_test)
+
+
 
 class ElectricDevice(Device):
     r"""Base electric device class.
