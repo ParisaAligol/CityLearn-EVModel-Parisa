@@ -1,7 +1,7 @@
 # CityLearn – EV Model + RL-MPC + Thermal Models
 CityLearn is an open source OpenAI Gym environment for the implementation of Multi-Agent Reinforcement Learning (RL) for building energy coordination and demand response in cities. A major challenge for RL in demand response is the ability to compare algorithm performance. Thus, CityLearn facilitates and standardizes the evaluation of RL agents such that different algorithms can be easily compared with each other.
 
-![Demand-response](https://github.com/intelligent-environments-lab/CityLearn/blob/master/assets/images/dr.jpg)
+<img width="1475" height="1475" alt="Fig 1 SMG" src="https://github.com/user-attachments/assets/d80706b2-e6e1-4dfa-874f-5a561cf6d3df" />
 
 This repo extends CityLearn with:
 
