@@ -11,9 +11,11 @@ except (ModuleNotFoundError, ImportError) as e:
 
 from citylearn.agents.rbc import RBC, BasicBatteryRBC, BasicRBC, HourRBC, OptimizedRBC
 from citylearn.agents.rlc import RLC
+from citylearn.agents.mpc import MPC
 from citylearn.citylearn import CityLearnEnv
 from citylearn.preprocessing import Encoder, RemoveFeature
 from citylearn.rl import PolicyNetwork, ReplayBuffer, SoftQNetwork
+
 
 class SAC(RLC):
     def __init__(self, env: CityLearnEnv, **kwargs: Any):
