@@ -1055,3 +1055,98 @@ class ElectricVehicle(Battery):
         
         else:
             pass
+
+class FresnelCollector(Device):
+    """Solar-thermal collector that converts solar irradiance into thermal energy.
+       All energies are in kWh per time step; power-like limits are per step too.
+    """
+    def __init__(self, nominal_power: float = 5.0, efficiency: float = 0.5, **kwargs):
+        super().__init__(efficiency=efficiency, **kwargs)
+        self.nominal_power = max(0.0, float(nominal_power))
+        self.__thermal_output = [0.0]  # kWh produced this step (logged over time)
+
+    @property
+    def thermal_output(self) -> list[float]:
+        return self.__thermal_output
+
+    def get_output(self, solar_irradiance: float) -> float:
+        """Return thermal energy produced this step [kWh].
+           `solar_irradiance` is a normalized or scaled signal from your env/schema.
+           You control the scaling. Example: 0..1 ⇒ fraction of nominal per step.
+        """
+        # Simple affine model; replace with your preferred mapping
+        output = self.efficiency * float(solar_irradiance) * self.nominal_power
+        # log to current time step
+        self.__thermal_output[self.time_step] += max(0.0, output)
+        return self.__thermal_output[self.time_step]
+
+    def next_time_step(self):
+        super().next_time_step()
+        self.__thermal_output.append(0.0)
+
+    def reset(self):
+        super().reset()
+        self.__thermal_output = [0.0]
+
+
+class ThermalBuffer(StorageTank):
+    """Thermal storage using your existing StorageTank mechanics.
+       Use `loss_coefficient` to model standing losses per hour/step.
+    """
+    def __init__(self, capacity_kWh: float = 200.0, loss: float = 0.01,
+                 max_output_power: float | None = None, max_input_power: float | None = None, **kwargs):
+        super().__init__(capacity=capacity_kWh,
+                         max_output_power=max_output_power,
+                         max_input_power=max_input_power,
+                         loss_coefficient=loss, **kwargs)
+        # StorageTank already keeps SOC and energy_balance histories.
+
+    # Optional ergonomic helpers:
+    def charge_kWh(self, e_kWh: float):
+        self.change_kWh(e_kWh)
+
+    def discharge_kWh(self, e_kWh: float) -> float:
+        """Request discharge; returns the actual discharged energy (may be limited)."""
+        prev_soc = self.soc[-1]
+        self.charge(-abs(e_kWh))
+        return max(0.0, prev_soc - self.soc[-1])  # delivered (approx; includes losses)
+
+    # Keep StorageTank.charge(), next_time_step(), reset() as inherited.
+
+
+class AbsorptionChiller(Device):
+    """Thermal-driven chiller. Consumes thermal kWh and outputs cooling kWh.
+       COP < 1 is common for LiBr systems.
+    """
+    def __init__(self, thermal_capacity_kW: float = 50.0, cop: float = 0.7, **kwargs):
+        super().__init__(**kwargs)
+        self.thermal_capacity = max(0.0, float(thermal_capacity_kW))
+        self.cop = float(cop)
+        self.__thermal_input = [0.0]
+        self.__cooling_output = [0.0]
+
+    @property
+    def thermal_input(self) -> list[float]:
+        return self.__thermal_input
+
+    @property
+    def cooling_output(self) -> list[float]:
+        return self.__cooling_output
+
+    def convert(self, thermal_input_kWh: float) -> float:
+        """Feed thermal energy (bounded by capacity per step) and get cooling output (kWh)."""
+        q_in = min(max(0.0, thermal_input_kWh), self.thermal_capacity)
+        q_out = self.cop * q_in
+        self.__thermal_input[self.time_step] += q_in
+        self.__cooling_output[self.time_step] += q_out
+        return q_out
+
+    def next_time_step(self):
+        super().next_time_step()
+        self.__thermal_input.append(0.0)
+        self.__cooling_output.append(0.0)
+
+    def reset(self):
+        super().reset()
+        self.__thermal_input = [0.0]
+        self.__cooling_output = [0.0]
