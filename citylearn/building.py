@@ -7,7 +7,7 @@ import torch
 from citylearn.base import Environment
 from citylearn.data import EnergySimulation, CarbonIntensity, Pricing, Weather
 from citylearn.dynamics import Dynamics, LSTMDynamics
-from citylearn.energy_model import Battery, ElectricHeater, ElectricVehicle, HeatPump, PV, StorageTank
+from citylearn.energy_model import Battery, ElectricHeater, ElectricVehicle, HeatPump, PV, StorageTank, FresnelCollector, ThermalBuffer, AbsorptionChiller
 from citylearn.preprocessing import Normalize, PeriodicNormalization
 
 class Building(Environment):
@@ -58,7 +58,8 @@ class Building(Environment):
         self, energy_simulation: EnergySimulation, weather: Weather, observation_metadata: Mapping[str, bool], action_metadata: Mapping[str, bool], carbon_intensity: CarbonIntensity = None, 
         pricing: Pricing = None, dhw_storage: StorageTank = None, cooling_storage: StorageTank = None, heating_storage: StorageTank = None, electrical_storage: Battery = None, electric_vehicles: List[ElectricVehicle] = None,
         dhw_device: Union[HeatPump, ElectricHeater] = None, cooling_device: HeatPump = None, heating_device: Union[HeatPump, ElectricHeater] = None, pv: PV = None, name: str = None,
-        maximum_temperature_delta: float = None, **kwargs: Any
+        maximum_temperature_delta: float = None, fresnel: FresnelCollector = None, thermal_buffer: ThermalBuffer = None, absorption_chiller: AbsorptionChiller = None, **kwargs: Any
+            
     ):
         self.name = name
         self.energy_simulation = energy_simulation
@@ -76,7 +77,11 @@ class Building(Environment):
         self.cooling_device = cooling_device
         self.heating_device = heating_device
         self.pv = pv
-        self.__observation_epsilon = 0.0 # to avoid out of bound observations
+        self.fresnel = FresnelCollector(nominal_power=0.0, efficiency=0.0) if fresnel is None else fresnel
+        self.thermal_buffer = ThermalBuffer(capacity_kWh=0.0, loss=0.0) if thermal_buffer is None else thermal_buffer
+        self.absorption_chiller = AbsorptionChiller(thermal_capacity_kW=0.0, cop=0.7) if absorption_chiller is None else absorption_chiller
+
+self.__observation_epsilon = 0.0 # to avoid out of bound observations
         self.maximum_temperature_delta = 5.0 if maximum_temperature_delta is None else maximum_temperature_delta # C
         self.__thermal_load_factor = 1.15
         self.non_periodic_normalized_observation_space_limits = None
@@ -84,6 +89,28 @@ class Building(Environment):
         self.observation_space = self.estimate_observation_space()
         self.action_space = self.estimate_action_space()
         self.__set_without_partial_load_variables()
+        self.__fsc_output = [0.0]              # kWh thermal from Fresnel this step
+        self.__absorption_cooling = [0.0]      # kWh cooling produced this step
+
+        # If the devices are “active”, expose obs & actions
+        devices_active = (self.fresnel.nominal_power > 0.0) or (self.thermal_buffer.capacity > 0.0) or (self.absorption_chiller.thermal_capacity > 0.0)
+
+        if devices_active:
+            # observations
+            self.observation_metadata = {
+                **self.observation_metadata,
+                'fresnel_thermal_output': True,
+                'thermal_buffer_soc': True,
+                'absorption_chiller_cooling_output': True,
+            }
+            # actions (two new controls)
+            #  - fsc_to_buffer: fraction [0..1] of Fresnel output routed to buffer
+            #  - buffer_to_chiller: fraction [0..1] of buffer capacity to discharge to chiller this step
+            self.action_metadata = {
+                **self.action_metadata,
+                'fsc_to_buffer': True,
+                'buffer_to_chiller': True,
+            }
 
         arg_spec = inspect.getfullargspec(super().__init__)
         kwargs = {
@@ -724,6 +751,10 @@ class Building(Environment):
             'indoor_dry_bulb_temperature_set_point': self.energy_simulation.indoor_dry_bulb_temperature_set_point[self.time_step],
             'indoor_dry_bulb_temperature_delta': abs(self.energy_simulation.indoor_dry_bulb_temperature[self.time_step] - self.energy_simulation.indoor_dry_bulb_temperature_set_point[self.time_step]),
             'occupant_count': self.energy_simulation.occupant_count[self.time_step],
+            'fresnel_thermal_output': self.__fsc_output[self.time_step],
+            'thermal_buffer_soc': (self.thermal_buffer.soc[self.time_step] / max(1e-9, self.thermal_buffer.capacity)),
+            'absorption_chiller_cooling_output': self.__absorption_cooling[self.time_step],
+
         }
 
         if include_all:
@@ -787,6 +818,8 @@ class Building(Environment):
         cooling_storage_action: float = None, heating_storage_action: float = None, 
         dhw_storage_action: float = None, electrical_storage_action: float = None,
         electric_vehicle_actions: List[float] = None,
+        fsc_to_buffer_action: float = None,
+        buffer_to_chiller_action: float = None,
     ):
         r"""Update cooling and heating demand for next timestep and charge/discharge storage devices.
 
@@ -812,6 +845,7 @@ class Building(Environment):
         self.update_cooling(cooling_device_action, cooling_storage_action)
         self.update_heating(heating_device_action, heating_storage_action)
         self.update_dhw(dhw_storage_action)
+        self.update_solar_thermal(fsc_to_buffer_action, buffer_to_chiller_action)
         self.update_electrical_storage(electrical_storage_action)
         self.update_electric_vehicles(electric_vehicle_actions)
 
@@ -926,6 +960,7 @@ class Building(Environment):
             energy = action*self.electrical_storage.capacity
             ev.charge(energy)
 
+
     def estimate_observation_space(self, include_all: bool = None, normalize: bool = None, periodic_normalization: bool = None) -> spaces.Box:
         r"""Get estimate of observation spaces.
 
@@ -1039,6 +1074,24 @@ class Building(Environment):
             elif key == 'indoor_dry_bulb_temperature_delta':
                 low_limit[key] = 0
                 high_limit[key] = self.maximum_temperature_delta
+
+            elif key == 'fresnel_thermal_output':
+                try:
+                    irr = np.array(self.weather.direct_solar_irradiance, dtype=float)
+                except Exception:
+                    irr = np.array(self.energy_simulation.solar_generation, dtype=float)
+                # rough upper bound
+                high_limit[key] = float(np.max(irr)) * max(0.0, self.fresnel.nominal_power) * max(0.0, self.fresnel.efficiency)
+                low_limit[key] = 0.0
+
+            elif key == 'thermal_buffer_soc':
+                low_limit[key] = 0.0
+                high_limit[key] = 1.0
+
+            elif key == 'absorption_chiller_cooling_output':
+                low_limit[key] = 0.0
+                high_limit[key] = max(0.0, self.absorption_chiller.thermal_capacity) * max(0.0, self.absorption_chiller.cop)
+
                 
             elif key in ['cooling_demand', 'heating_demand']:
                 if key == 'cooling_demand':
@@ -1099,7 +1152,14 @@ class Building(Environment):
                 limit = self.electric_vehicles[ix].nominal_power/self.electric_vehicles[ix].capacity
                 low_limit.append(-limit)
                 high_limit.append(limit)
-            
+                
+            elif key == 'fsc_to_buffer':
+                low_limit.append(0.0)
+                high_limit.append(1.0)
+            elif key == 'buffer_to_chiller':
+                # interpret as fraction of buffer capacity per step
+                low_limit.append(0.0)
+                high_limit.append(1.0)
             else:
                 if key == 'cooling_storage':
                     capacity = self.cooling_storage.capacity
@@ -1228,6 +1288,10 @@ class Building(Environment):
     def next_time_step(self):
         r"""Advance all energy storage and electric devices and, PV to next `time_step`."""
 
+        if hasattr(self.fresnel, 'next_time_step'): self.fresnel.next_time_step()
+        if hasattr(self.thermal_buffer, 'next_time_step'): self.thermal_buffer.next_time_step()
+        if hasattr(self.absorption_chiller, 'next_time_step'): self.absorption_chiller.next_time_step()
+            
         self.cooling_device.next_time_step()
         self.heating_device.next_time_step()
         self.dhw_device.next_time_step()
@@ -1235,6 +1299,8 @@ class Building(Environment):
         self.heating_storage.next_time_step()
         self.dhw_storage.next_time_step()
         self.electrical_storage.next_time_step()
+        self.__fsc_output.append(0.0)
+        self.__absorption_cooling.append(0.0)
         
         for ev in self.electric_vehicles:
             ev.next_time_step()
@@ -1252,6 +1318,12 @@ class Building(Environment):
         self.heating_storage.reset()
         self.dhw_storage.reset()
         self.electrical_storage.reset()
+
+        if hasattr(self.fresnel, 'reset'): self.fresnel.reset()
+        if hasattr(self.thermal_buffer, 'reset'): self.thermal_buffer.reset()
+        if hasattr(self.absorption_chiller, 'reset'): self.absorption_chiller.reset()
+        self.__fsc_output = [0.0]
+        self.__absorption_cooling = [0.0]
 
         for ev in self.electric_vehicles:
             ev.reset()
@@ -1588,3 +1660,54 @@ class LSTMDynamicsBuilding(DynamicsBuilding):
 
         else:
             pass
+    def update_solar_thermal(self, fsc_to_buffer_action: float, buffer_to_chiller_action: float):
+        """Route solar-thermal energy, update buffer SOC, and produce cooling via absorption chiller.
+
+        fsc_to_buffer_action: fraction [0..1] of Fresnel output into buffer (rest directly to chiller)
+        buffer_to_chiller_action: fraction [0..1] of buffer capacity to discharge to chiller
+        """
+        # If devices are inactive, keep zeros
+        if (self.fresnel.nominal_power <= 0.0) and (self.thermal_buffer.capacity <= 0.0) and (self.absorption_chiller.thermal_capacity <= 0.0):
+            self.__fsc_output[self.time_step] = 0.0
+            self.__absorption_cooling[self.time_step] = 0.0
+            return
+
+        # 1) Thermal production from Fresnel (use weather irradiance; fallback to solar_generation if needed)
+        try:
+            irr = float(self.weather.direct_solar_irradiance[self.time_step])
+        except Exception:
+            # fallback: use energy_simulation.solar_generation as a proxy if irradiance not available (adjust scaling as needed)
+            irr = float(self.energy_simulation.solar_generation[self.time_step])
+        q_fsc = max(0.0, self.fresnel.get_output(irr))  # kWh thermal this step
+        self.__fsc_output[self.time_step] = q_fsc
+
+        # 2) Split to buffer vs direct to chiller
+        a_split = 0.0 if (fsc_to_buffer_action is None or math.isnan(fsc_to_buffer_action)) else float(np.clip(fsc_to_buffer_action, 0.0, 1.0))
+        q_to_buffer = a_split * q_fsc
+        q_direct_to_chiller = (1.0 - a_split) * q_fsc
+
+        # 3) Net buffer change = (+charge from FSC) + (−discharge to chiller)
+        # Interpret buffer_to_chiller_action as fraction of capacity to discharge
+        b2c_frac = 0.0 if (buffer_to_chiller_action is None or math.isnan(buffer_to_chiller_action)) else float(np.clip(buffer_to_chiller_action, 0.0, 1.0))
+        req_discharge = b2c_frac * self.thermal_buffer.capacity  # kWh request out of buffer
+        # Clip discharge by available SOC and chiller thermal capacity
+        avail_from_buffer = max(0.0, self.thermal_buffer.soc[self.time_step])
+        max_chiller_in = max(0.0, self.absorption_chiller.thermal_capacity)
+        actual_discharge = min(req_discharge, avail_from_buffer, max_chiller_in)
+
+        # Apply a single buffer charge() with net energy so we don't append twice in one step
+        net_buffer_energy = q_to_buffer - actual_discharge  # (+) charge, (−) discharge
+        if net_buffer_energy != 0.0:
+            self.thermal_buffer.charge(net_buffer_energy)
+
+        # 4) Thermal to chiller = direct + from buffer
+        q_chiller_in = q_direct_to_chiller + actual_discharge
+        q_cooling = self.absorption_chiller.convert(q_chiller_in) if q_chiller_in > 0 else 0.0
+        self.__absorption_cooling[self.time_step] = q_cooling
+
+        # 5) Reduce current step cooling demand by absorption cooling
+        #    (cannot go negative)
+        self.energy_simulation.cooling_demand[self.time_step] = max(
+            0.0,
+            self.energy_simulation.cooling_demand[self.time_step] - q_cooling
+        )
