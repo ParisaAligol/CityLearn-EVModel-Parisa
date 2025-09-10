@@ -9,6 +9,8 @@ RL-MPC agent (SLSQP-based MPC with an LSTM thermal forecaster)
 New energy models: Fresnel solar-thermal collector, Thermal Buffer (TES), Absorption Chiller
 Existing SAC agents and our EV integration
 
+<img width="17475" height="11833" alt="Fig 4 CityLearn" src="https://github.com/user-attachments/assets/48f6f4d4-cff7-4a1a-94f3-b48e63c76ae2" />
+
 The goal is to make it easy to compare MPC/RL (and hybrids) on building coordination and demand response. MPC and RLC have a hierarchical architecture. Local LSTM-based MPC manages HVAC loads, while centralized SAC-based RL coordinates energy storage systems.
 
 <img width="1065" height="641" alt="GraphicAbstract" src="https://github.com/user-attachments/assets/fac10530-0e09-479c-b12a-6bea44e77f17" />
